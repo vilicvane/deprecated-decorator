@@ -126,11 +126,6 @@ function decorateClass(
         target.apply(this, arguments);
     };
     
-    Object.defineProperty(constructor, 'name', {
-        value: name,
-        writable: false
-    });
-    
     for (let propertyName of Object.getOwnPropertyNames(target)) {
         let descriptor = Object.getOwnPropertyDescriptor(target, propertyName);
         
