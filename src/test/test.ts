@@ -116,7 +116,7 @@ describe('deprecated', () => {
             
             warnerSpy.calledOnce.should.be.true;
             
-            (<any>Foo).name;
+            ((<any>Foo).name as string).should.equal('Foo');
             
             warnerSpy.calledTwice.should.be.true;
             
