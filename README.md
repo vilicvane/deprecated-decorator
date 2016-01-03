@@ -16,6 +16,8 @@ npm install deprecated-decorator --save
 Decorating a class will enable warning on constructor and static methods (including static getters and setters):
 
 ```ts
+import deprecated from 'deprecated-decorator';
+
 // alternative, since version, url
 @deprecated('Bar', '0.1.0', 'http://vane.life/')
 class Foo {
@@ -26,6 +28,8 @@ class Foo {
 Or you can decorate methods respectively:
 
 ```ts
+import deprecated from 'deprecated-decorator';
+
 class Foo {
     @deprecated('otherMethod')
     method() { }
