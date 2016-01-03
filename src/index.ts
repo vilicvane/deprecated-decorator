@@ -17,7 +17,7 @@ export const options = {
     getWarner: undefined as typeof createWarner
 };
 
-export function createWarner(type: string, name: string, alternative: string, version: string, url: string): Warner {
+function createWarner(type: string, name: string, alternative: string, version: string, url: string): Warner {
     let warnedPositions: HashSet = {};
     
     return () => {
