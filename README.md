@@ -11,6 +11,23 @@ A simple decorator for deprecated properties, methods and classes.
 npm install deprecated-decorator --save
 ```
 
+## API References
+
+```ts
+export declare type DeprecatedDecorator = ClassDecorator & PropertyDecorator;
+
+export interface DeprecatedOptions {
+    alternative?: string;
+    version?: string;
+    url?: string;
+}
+
+export declare function deprecated(options?: DeprecatedOptions): DeprecatedDecorator;
+export declare function deprecated(alternative?: string, version?: string, url?: string): DeprecatedDecorator;
+
+export default deprecated;
+```
+
 ## Usage
 
 Decorating a class will enable warning on constructor and static methods (including static getters and setters):
@@ -34,7 +51,11 @@ class Foo {
     @deprecated('otherMethod')
     method() { }
     
-    @deprecated('otherProperty')
+    @deprecated({
+        alternative: 'otherProperty',
+        version: '0.1.2',
+        url: 'http://vane.life/'
+    })
     get property() { }
 }
 ```

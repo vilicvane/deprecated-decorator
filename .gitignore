@@ -1,2 +1,4 @@
-/node_modules/
+/.vscode/launch.json
+/src/debug/
 /bld/
+/node_modules/

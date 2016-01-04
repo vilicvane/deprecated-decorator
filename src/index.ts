@@ -36,7 +36,21 @@ function createWarner(type: string, name: string, alternative: string, version: 
         
         warnedPositions[at] = true;
         
-        let message = `${type === 'property' ? 'Property or method' : 'Class'} "${name}" has been deprecated`;
+        let message: string;
+        
+        switch (type) {
+            case 'property':
+                message = 'Property';
+                break;
+            case 'method':
+                message = 'Method';
+                break;
+            case 'class':
+                message = 'Class';
+                break;
+        }
+        
+        message += ` "${name}" has been deprecated`;
         
         if (version) {
             message += ` since version ${version}`;
@@ -139,10 +153,35 @@ function decorateClass(
     return constructor;
 }
 
-export function deprecated(alternative?: string, version?: string, url?: string) {
-    return (target: Function | Object, name?: string, descriptor?: PropertyDescriptor): any => {
+export type DeprecatedDecorator = ClassDecorator & PropertyDecorator;
+
+export interface DeprecatedOptions {
+    alternative?: string;
+    version?: string;
+    url?: string;
+}
+
+export function deprecated(options?: DeprecatedOptions): DeprecatedDecorator;
+export function deprecated(alternative?: string, version?: string, url?: string): DeprecatedDecorator;
+export function deprecated(options?: DeprecatedOptions | string, version?: string, url?: string): DeprecatedDecorator {
+    let alternative: string;
+    
+    if (typeof options === 'string') {
+        alternative = options;
+    } else if (options) {
+        ({
+            alternative,
+            version,
+            url
+        } = options);
+    }
+    
+    return (target: Function | Object, name?: string, descriptor?: PropertyDescriptor): Function | PropertyDescriptor => {
         if (typeof name === 'string') {
-            return decorateProperty('property', name, descriptor, alternative, version, url);
+            let type = descriptor && typeof descriptor.value === 'function' ?
+                'method' : 'property';
+            
+            return decorateProperty(type, name, descriptor, alternative, version, url);
         } else if (typeof target === 'function') {
             let constructor = decorateClass(target as Function, alternative, version, url);
             
