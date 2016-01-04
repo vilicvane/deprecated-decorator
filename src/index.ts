@@ -53,14 +53,14 @@ function createWarner(type: string, name: string, alternative: string, version: 
                 break;
         }
         
-        message += ` "${name}" has been deprecated`;
+        message += ` \`${name}\` has been deprecated`;
         
         if (version) {
             message += ` since version ${version}`;
         }
         
         if (alternative) {
-            message += `, use "${alternative}" instead`;
+            message += `, use \`${alternative}\` instead`;
         }
         
         message += '.';
