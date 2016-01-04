@@ -129,16 +129,17 @@ function decorateProperty(
     return deprecatedDescriptor;
 }
 
-function decorateClass(
-    target: Function,
+function decorateFunction<T extends Function>(
+    type: string,
+    target: T,
     alternative: string,
     version: string,
     url: string
-): Function {
+): T {
     let name: string = (<any>target).name;
-    let warner = (options.getWarner || createWarner)('class', name, alternative, version, url);
+    let warner = (options.getWarner || createWarner)(type, name, alternative, version, url);
     
-    let constructor = function () {
+    let fn: T = <any>function () {
         warner();
         return target.apply(this, arguments);
     };
@@ -147,28 +148,11 @@ function decorateClass(
         let descriptor = Object.getOwnPropertyDescriptor(target, propertyName);
         
         if (descriptor.writable) {
-            (<any>constructor)[propertyName] = (<any>target)[propertyName];
+            (<any>fn)[propertyName] = (<any>target)[propertyName];
         } else if (descriptor.configurable) {
-            Object.defineProperty(constructor, propertyName, descriptor);
+            Object.defineProperty(fn, propertyName, descriptor);
         }
     }
-    
-    return constructor;
-}
-
-function decorateFunction<T extends Function>(
-    target: T,
-    alternative: string,
-    version: string,
-    url: string
-): T {
-    let name: string = (<any>target).name;
-    let warner = (options.getWarner || createWarner)('function', name, alternative, version, url);
-    
-    let fn: T = <any>function () {
-        warner();
-        return target.apply(this, arguments);
-    };
     
     return fn;
 }
@@ -216,7 +200,7 @@ export function deprecated(...args: any[]): any {
     }
     
     if (fn) {
-        return decorateFunction(fn, alternative, version, url);
+        return decorateFunction('function', fn, alternative, version, url);
     }
     
     return (target: Function | Object, name?: string, descriptor?: PropertyDescriptor): Function | PropertyDescriptor => {
@@ -226,7 +210,7 @@ export function deprecated(...args: any[]): any {
             
             return decorateProperty(type, name, descriptor, alternative, version, url);
         } else if (typeof target === 'function') {
-            let constructor = decorateClass(target as Function, alternative, version, url);
+            let constructor = decorateFunction('class', target as Function, alternative, version, url);
             let className: string = (<any>target).name;
             
             for (let propertyName of Object.getOwnPropertyNames(constructor)) {

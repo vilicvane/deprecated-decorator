@@ -166,6 +166,7 @@ describe('deprecated', () => {
             warnerSpy.called.should.be.false;
             
             (fn('abc', 'def')).should.equal(2);
+            (<any>fn).name.should.equal('test');
             
             warnerSpy.calledOnce.should.be.true;
         });
@@ -182,6 +183,7 @@ describe('deprecated', () => {
             warnerSpy.called.should.be.false;
             
             (fn('abc', 'def')).should.equal(2);
+            (<any>fn).name.should.equal('test');
             
             warnerSpy.calledOnce.should.be.true;
         });

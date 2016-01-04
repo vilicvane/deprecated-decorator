@@ -3,7 +3,7 @@
 
 # Deprecated Decorator
 
-A simple decorator for deprecated properties, methods and classes.
+A simple decorator for deprecated properties, methods and classes. It can also wrap normal functions via the old-fashioned way.
 
 Transpilers supported:
 
