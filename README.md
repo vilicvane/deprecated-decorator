@@ -5,6 +5,11 @@
 
 A simple decorator for deprecated properties, methods and classes.
 
+Transpilers supported:
+
+- **TypeScript** with `experimentalDecorators` option enabled.
+- **Babel** with [transform-decorators-legacy](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy) for version 6.x.
+
 ## Install
 
 ```sh
