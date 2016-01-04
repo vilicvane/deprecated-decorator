@@ -155,4 +155,35 @@ describe('deprecated', () => {
             warnerSpy.calledTwice.should.be.true;
         });
     });
+    
+    context('functions', () => {
+        it('should handle functions', () => {
+            let fn = deprecated('biu', function test(...args: string[]) {
+                return arguments.length;
+            });
+            
+            getterSpy.called.should.be.true;
+            warnerSpy.called.should.be.false;
+            
+            (fn('abc', 'def')).should.equal(2);
+            
+            warnerSpy.calledOnce.should.be.true;
+        });
+        
+        it('should handle functions with options object', () => {
+            let fn = deprecated({
+                alternative: 'biu',
+                version: '0.1.2'
+            }, function test(...args: string[]) {
+                return arguments.length;
+            });
+            
+            getterSpy.called.should.be.true;
+            warnerSpy.called.should.be.false;
+            
+            (fn('abc', 'def')).should.equal(2);
+            
+            warnerSpy.calledOnce.should.be.true;
+        });
+    });
 });

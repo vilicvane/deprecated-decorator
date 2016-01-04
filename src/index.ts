@@ -39,14 +39,17 @@ function createWarner(type: string, name: string, alternative: string, version: 
         let message: string;
         
         switch (type) {
+            case 'class':
+                message = 'Class';
+                break;
             case 'property':
                 message = 'Property';
                 break;
             case 'method':
                 message = 'Method';
                 break;
-            case 'class':
-                message = 'Class';
+            case 'function':
+                message = 'Function';
                 break;
         }
         
@@ -131,13 +134,13 @@ function decorateClass(
     alternative: string,
     version: string,
     url: string
-) {
+): Function {
     let name: string = (<any>target).name;
     let warner = (options.getWarner || createWarner)('class', name, alternative, version, url);
     
     let constructor = function () {
         warner();
-        target.apply(this, arguments);
+        return target.apply(this, arguments);
     };
     
     for (let propertyName of Object.getOwnPropertyNames(target)) {
@@ -153,6 +156,23 @@ function decorateClass(
     return constructor;
 }
 
+function decorateFunction<T extends Function>(
+    target: T,
+    alternative: string,
+    version: string,
+    url: string
+): T {
+    let name: string = (<any>target).name;
+    let warner = (options.getWarner || createWarner)('function', name, alternative, version, url);
+    
+    let fn: T = <any>function () {
+        warner();
+        return target.apply(this, arguments);
+    };
+    
+    return fn;
+}
+
 export type DeprecatedDecorator = ClassDecorator & PropertyDecorator;
 
 export interface DeprecatedOptions {
@@ -163,17 +183,40 @@ export interface DeprecatedOptions {
 
 export function deprecated(options?: DeprecatedOptions): DeprecatedDecorator;
 export function deprecated(alternative?: string, version?: string, url?: string): DeprecatedDecorator;
-export function deprecated(options?: DeprecatedOptions | string, version?: string, url?: string): DeprecatedDecorator {
+export function deprecated<T extends Function>(fn: T): T;
+export function deprecated<T extends Function>(options: DeprecatedOptions, fn: T): T;
+export function deprecated<T extends Function>(alternative: string, fn: T): T;
+export function deprecated<T extends Function>(alternative: string, version: string, fn: T): T;
+export function deprecated<T extends Function>(alternative: string, version: string, url: string, fn: T): T;
+export function deprecated(...args: any[]): any {
+    let fn = args[args.length - 1];
+    
+    if (typeof fn === 'function') {
+        fn = args.pop();
+    } else {
+        fn = undefined;
+    }
+    
+    let options = args[0];
+    
     let alternative: string;
+    let version: string;
+    let url: string;
     
     if (typeof options === 'string') {
         alternative = options;
+        version = args[1];
+        url = args[2];
     } else if (options) {
         ({
             alternative,
             version,
             url
         } = options);
+    }
+    
+    if (fn) {
+        return decorateFunction(fn, alternative, version, url);
     }
     
     return (target: Function | Object, name?: string, descriptor?: PropertyDescriptor): Function | PropertyDescriptor => {
@@ -184,10 +227,11 @@ export function deprecated(options?: DeprecatedOptions | string, version?: strin
             return decorateProperty(type, name, descriptor, alternative, version, url);
         } else if (typeof target === 'function') {
             let constructor = decorateClass(target as Function, alternative, version, url);
+            let className: string = (<any>target).name;
             
             for (let propertyName of Object.getOwnPropertyNames(constructor)) {
                 let descriptor = Object.getOwnPropertyDescriptor(constructor, propertyName);
-                descriptor = decorateProperty('class', (<any>target).name, descriptor, alternative, version, url);
+                descriptor = decorateProperty('class', className, descriptor, alternative, version, url);
                 
                 if (descriptor.writable) {
                     (<any>constructor)[propertyName] = (<any>target)[propertyName];
