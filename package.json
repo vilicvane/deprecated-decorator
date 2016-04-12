@@ -1,6 +1,6 @@
 {
   "name": "deprecated-decorator",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A simple decorator for deprecated methods and properties.",
   "main": "bld/index.js",
   "typings": "bld/index.d.ts",
